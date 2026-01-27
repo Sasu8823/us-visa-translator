@@ -3,21 +3,12 @@ import OpenAI from 'openai';
 
 /**
  * API Route: POST /api/translate
- * 
- * CRITICAL ACCURACY RULES FOR VISA APPLICATIONS:
- * - Translate ALL content accurately, including names, career history, dates, addresses, etc.
- * - Accuracy is paramount - visa applications require precise translations
- * - Use sentence-locked translation (never merge/paraphrase across sentences)
- * - Low temperature (0-0.2) for predictability and consistency
- * - Return strict JSON format
- * - Translate names using standard romanization (e.g., Hepburn for Japanese)
+ * Simple OpenAI translation for US visa applications
  */
 
-// Initialize OpenAI client (server-side only)
-// Optional: Set OPENAI_BASE_URL in .env.local to use a proxy (e.g., for bypassing geographic restrictions)
+// Simple OpenAI client initialization
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  ...(process.env.OPENAI_BASE_URL && { baseURL: process.env.OPENAI_BASE_URL }),
 });
 
 interface TranslateRequest {
@@ -91,48 +82,33 @@ Return ONLY a JSON object with this exact structure:
 
 Return the JSON object only, no additional text.`;
 
-  try {
-    // Use configurable model or default to gpt-3.5-turbo (more widely available)
-    // You can set OPENAI_MODEL in .env.local (e.g., 'gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-4o-mini')
-    const model = process.env.OPENAI_MODEL || 'gpt-4';
-    
-    const completion = await openai.chat.completions.create({
-      model: model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.1, // Low temperature for predictability
-      response_format: { type: 'json_object' },
-    });
+  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+  
+  const completion = await openai.chat.completions.create({
+    model: model,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    temperature: 0.1,
+    response_format: { type: 'json_object' },
+  });
 
-    const content = completion.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error('No response from OpenAI');
-    }
-
-    const result = JSON.parse(content);
-    return {
-      translated: result.translated || sentence, // Fallback to original if translation fails
-    };
-  } catch (error) {
-    // Log error without exposing PII, but include model info for debugging
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const model = process.env.OPENAI_MODEL || 'gpt-4';
-    console.error(`Translation error (no PII logged) - Model: ${model}, Error:`, errorMessage);
-    
-    // Return safe fallback for all errors
-    return {
-      translated: sentence, // Return original if translation fails
-    };
+  const content = completion.choices[0]?.message?.content;
+  if (!content) {
+    throw new Error('No response from OpenAI');
   }
+
+  const result = JSON.parse(content);
+  return {
+    translated: result.translated || sentence,
+  };
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Validate API key
+    // Check API key
     if (!process.env.OPENAI_API_KEY) {
-      console.log('OpenAI API key not configured');
       return NextResponse.json(
         { error: 'OpenAI API key not configured' },
         { status: 500 }
@@ -142,7 +118,6 @@ export async function POST(request: NextRequest) {
     const body: TranslateRequest = await request.json();
     const { text, mode } = body;
 
-    // Validate input
     if (!text || typeof text !== 'string') {
       return NextResponse.json(
         { error: 'Invalid text input' },
@@ -152,20 +127,17 @@ export async function POST(request: NextRequest) {
 
     if (mode !== 'visa-strict') {
       return NextResponse.json(
-        { error: 'Only visa-strict mode is supported in MVP' },
+        { error: 'Only visa-strict mode is supported' },
         { status: 400 }
       );
     }
 
-    // Split into sentences for sentence-locked translation
+    // Split and translate each sentence
     const sentences = splitIntoSentences(text);
-
-    // Translate each sentence independently (never merge across sentences)
     const sentenceTranslations = await Promise.all(
       sentences.map(sentence => translateSentence(sentence, mode))
     );
 
-    // Combine translations (sentence-locked, no paraphrasing across sentences)
     const translatedText = sentenceTranslations.map(st => st.translated).join(' ');
 
     const response: TranslationResponse = {
@@ -178,13 +150,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    // Never log PII - only log error type
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('API error (no PII logged):', errorMessage);
+    console.error('Translation error:', errorMessage);
     
-    // Generic error handling - no special restrictions
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: `Translation failed: ${errorMessage}` },
       { status: 500 }
     );
   }
