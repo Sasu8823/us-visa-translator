@@ -350,8 +350,8 @@ export async function POST(request: NextRequest) {
       if (hasUnknownPersonNames) {
         riskLevel = 'RED';
         warnings.push(
-          `Proper noun(s) not found in knowledge base: ${unknownProperNouns.join(', ')}. ` +
-          `Please confirm passport spelling before submitting visa application.`
+          `該当する固有名詞が、ナレッジベースに登録されていない状態です。: ${unknownProperNouns.join(', ')}. ` + '</br></br>' +
+          `ビザ申請の提出前に、パスポート記載の綴りに誤りがないかご確認ください。`
         );
       } else {
         riskLevel = 'YELLOW';

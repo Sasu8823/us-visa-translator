@@ -44,7 +44,7 @@ export default function Home() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        const errorMsg = errorData.details 
+        const errorMsg = errorData.details
           ? `${errorData.error}: ${errorData.details}`
           : errorData.error || 'Translation failed';
         throw new Error(errorMsg);
@@ -72,11 +72,11 @@ export default function Home() {
       <div className="disclaimer">
         <strong>⚠️ 重要な免責事項</strong>
         <p>
-        このツールはテスト目的のみに使用してください。
-翻訳の正確性やビザ申請への適合性は保証されません。
-氏名、日付、住所、職歴など、翻訳文は必ず慎重にご確認ください。
-ビザ申請では正確さが非常に重要です。
-ビザ申請書類の最終的な文言については、ご自身の責任となります。
+          このツールはテスト目的のみに使用してください。
+          翻訳の正確性やビザ申請への適合性は保証されません。
+          氏名、日付、住所、職歴など、翻訳文は必ず慎重にご確認ください。
+          ビザ申請では正確さが非常に重要です。
+          ビザ申請書類の最終的な文言については、ご自身の責任となります。
         </p>
       </div>
 
@@ -117,21 +117,20 @@ export default function Home() {
           <div className="translation-result">
             {/* Risk Level Indicator */}
             <div
-              className={`risk-indicator ${
-                translation.riskLevel === 'GREEN'
-                  ? 'green'
-                  : translation.riskLevel === 'YELLOW'
+              className={`risk-indicator ${translation.riskLevel === 'GREEN'
+                ? 'green'
+                : translation.riskLevel === 'YELLOW'
                   ? 'yellow'
                   : 'red'
-              }`}
+                }`}
               style={{ marginBottom: '1rem' }}
             >
               <span>
                 {translation.riskLevel === 'GREEN'
                   ? '✓ Low Risk'
                   : translation.riskLevel === 'YELLOW'
-                  ? '⚠ Moderate Risk'
-                  : '✗ High Risk'}
+                    ? '⚠ Moderate Risk'
+                    : '✗ High Risk'}
               </span>
             </div>
 
@@ -170,7 +169,7 @@ export default function Home() {
                   fontSize: '0.85rem',
                 }}
               >
-                <strong>✓ Applied from knowledge base:</strong>{' '}
+                <strong>✓ 知識ベースから適用された用語:</strong>{' '}
                 {translation.appliedGlossary.join(', ')}
               </div>
             )}
@@ -195,7 +194,7 @@ export default function Home() {
             {translation.sentences.length > 1 && (
               <details style={{ marginTop: '1.5rem' }}>
                 <summary style={{ cursor: 'pointer', fontWeight: 500, marginBottom: '0.5rem' }}>
-                  Sentence-by-Sentence Breakdown ({translation.sentences.length} sentences)
+                  文ごとの内訳「全{translation.sentences.length} 文」
                 </summary>
                 <div style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
                   {translation.sentences.map((sentence, index) => (
