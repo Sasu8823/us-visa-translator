@@ -52,7 +52,7 @@ export default function Home() {
 
       const data: TranslationResponse = await response.json();
       setTranslation(data);
-      setEditableTranslation(data.translatedText);
+      setEditableTranslation(data.outputText);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       setTranslation(null);
@@ -65,23 +65,25 @@ export default function Home() {
   return (
     <div className="container">
       <header className="header">
-        <h1>US Visa Translation Tester (MVP)</h1>
-        <p>Test translation accuracy for DS-160 / ESTA applications</p>
+        <h1>アメリカビザ翻訳テスター（MVP）</h1>
+        <p>DS-160 / ESTA申請のための翻訳精度テスト</p>
       </header>
 
       <div className="disclaimer">
-        <strong>⚠️ Important Disclaimer</strong>
+        <strong>⚠️ 重要な免責事項</strong>
         <p>
-          This tool is for testing purposes only. Translations are NOT guaranteed to be accurate or acceptable for visa applications.
-          Always review translations carefully, especially for names, dates, addresses, and career history.
-          Accuracy is critical for visa applications. You are responsible for the final wording submitted in your visa application.
+        このツールはテスト目的のみに使用してください。
+翻訳の正確性やビザ申請への適合性は保証されません。
+氏名、日付、住所、職歴など、翻訳文は必ず慎重にご確認ください。
+ビザ申請では正確さが非常に重要です。
+ビザ申請書類の最終的な文言については、ご自身の責任となります。
         </p>
       </div>
 
       <div className="translation-form">
         <div className="field-group">
           <label className="field-label" htmlFor="input-text">
-            Japanese Text (All content can be translated)
+            日本語テキスト（すべての内容を翻訳可能）
           </label>
           <textarea
             id="input-text"
@@ -108,11 +110,71 @@ export default function Home() {
         )}
 
         {isLoading && (
-          <div className="loading">Processing translation...</div>
+          <div className="loading">翻訳中...</div>
         )}
 
         {translation && (
           <div className="translation-result">
+            {/* Risk Level Indicator */}
+            <div
+              className={`risk-indicator ${
+                translation.riskLevel === 'GREEN'
+                  ? 'green'
+                  : translation.riskLevel === 'YELLOW'
+                  ? 'yellow'
+                  : 'red'
+              }`}
+              style={{ marginBottom: '1rem' }}
+            >
+              <span>
+                {translation.riskLevel === 'GREEN'
+                  ? '✓ Low Risk'
+                  : translation.riskLevel === 'YELLOW'
+                  ? '⚠ Moderate Risk'
+                  : '✗ High Risk'}
+              </span>
+            </div>
+
+            {/* Warnings */}
+            {translation.warnings.length > 0 && (
+              <div
+                style={{
+                  backgroundColor: '#fff3cd',
+                  border: '1px solid #ffc107',
+                  borderRadius: '4px',
+                  padding: '1rem',
+                  marginBottom: '1rem',
+                  fontSize: '0.9rem',
+                }}
+              >
+                <strong style={{ display: 'block', marginBottom: '0.5rem' }}>
+                  ⚠️ Warnings:
+                </strong>
+                {translation.warnings.map((warning, idx) => (
+                  <p key={idx} style={{ margin: '0.5rem 0', color: '#856404' }}>
+                    {warning}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {/* Applied Glossary */}
+            {translation.appliedGlossary.length > 0 && (
+              <div
+                style={{
+                  backgroundColor: '#d4edda',
+                  border: '1px solid #28a745',
+                  borderRadius: '4px',
+                  padding: '0.75rem',
+                  marginBottom: '1rem',
+                  fontSize: '0.85rem',
+                }}
+              >
+                <strong>✓ Applied from knowledge base:</strong>{' '}
+                {translation.appliedGlossary.join(', ')}
+              </div>
+            )}
+
             <div className="field-group" style={{ marginTop: '1rem' }}>
               <label className="field-label" htmlFor="translated-text">
                 Translated Text (Editable)
@@ -125,7 +187,7 @@ export default function Home() {
                 placeholder="Translation will appear here..."
               />
               <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
-                You can edit this translation. You own the final wording.
+                この翻訳は編集可能です。最終的な文言はあなたに帰属します。
               </p>
             </div>
 
@@ -148,10 +210,10 @@ export default function Home() {
                       }}
                     >
                       <div style={{ marginBottom: '0.5rem' }}>
-                        <strong>Original:</strong> {sentence.original}
+                        <strong>原文:</strong> {sentence.original}
                       </div>
                       <div>
-                        <strong>Translated:</strong> {sentence.translated}
+                        <strong>翻訳:</strong> {sentence.translated}
                       </div>
                     </div>
                   ))}

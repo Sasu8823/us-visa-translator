@@ -1,0 +1,32 @@
+{
+  "person_name": {
+    "岩谷": {
+      "en": "iwaya",
+      "confidence": "passport_verified"
+    },
+    "田中": {
+      "en": "tanaka",
+      "confidence": "passport_verified"
+    },
+    "佐藤": {
+      "en": "sato",
+      "confidence": "passport_verified"
+    }
+  },
+  "place_name": {
+    "東京": {
+      "en": "Tokyo",
+      "confidence": "verified"
+    },
+    "大阪": {
+      "en": "Osaka",
+      "confidence": "verified"
+    }
+  },
+  "clinic_name": {
+    "山田クリニック": {
+      "en": "Yamada Clinic",
+      "confidence": "verified"
+    }
+  }
+}
