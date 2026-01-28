@@ -350,7 +350,7 @@ export async function POST(request: NextRequest) {
       if (hasUnknownPersonNames) {
         riskLevel = 'RED';
         warnings.push(
-          `該当する固有名詞が、ナレッジベースに登録されていない状態です。: ${unknownProperNouns.join(', ')}. ` + '</br>' +
+          `該当する固有名詞が、ナレッジベースに登録されていない状態です。: ${unknownProperNouns.join(', ')}. ` + '→' +
           `ビザ申請の提出前に、パスポート記載の綴りに誤りがないかご確認ください。`
         );
       } else {
